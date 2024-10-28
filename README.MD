@@ -16,7 +16,7 @@ This project simulate mobile devices & network base stations, connecting by sign
 <center>
 --===Project structure===--
 </center>
-<br> 
+<br>
 Directory - base_classses:
 <br>
 * base_station.py - responsible for the base_station obj

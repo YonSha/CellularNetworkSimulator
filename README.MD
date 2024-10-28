@@ -4,11 +4,14 @@ Mobile/Signal simulator
 ---------------===========----------------
 </center>
 <br>
+<br>
 <center>
 --====Description====--
 </center>
 <br>
+<br>
 This project simulate mobile devices & network base stations, connecting by signal_power compared to distance.
+<br>
 <br>
 <center>
 --===Project structure===--
@@ -46,5 +49,7 @@ lib requirements
 <center>
 --===setup===--
 </center>
+<br>
+<br>
 pip install -r requirements.txt
 

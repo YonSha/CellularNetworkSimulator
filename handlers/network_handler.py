@@ -22,20 +22,20 @@ class NetworkHandler:
         elif protocol.upper() == 'ICMP':
             packet = ip / ICMP() / payload
         else:
-            logging.info("Unsupported protocol.")
+            logging.debug("Unsupported protocol.")
             return
 
         # Send the packet
         send(packet, verbose=0)
         self.packet_count += 1
-        logging.info(
+        logging.debug(
             f"Sent {protocol} packet from {sender_device.sim_code} to {target_device.sim_code} on port {target_port}. Total packets sent: {self.packet_count}.")
 
     def sniff_packets(self, sender_devices):
         def packet_handler(packet):
             # Print only the packets that originate from the sender devices
             if IP in packet and packet[IP].src in [device.ip_address for device in sender_devices]:
-                logging.info(f"Captured Outgoing Packet: {packet.summary()}")
+                logging.debug(f"Captured Outgoing Packet: {packet.summary()}")
 
         logging.info("Starting packet sniffing...")
         sender_ips = [device.ip_address for device in sender_devices]
@@ -63,7 +63,7 @@ class NetworkHandler:
         self.stop_sniffing_event.set()  # Signal the sniffing thread to stop
         if self.sniff_thread is not None:
             self.sniff_thread.join()  # Wait for the thread to finish
-            logging.info("Stopped packet sniffing.")
+            logging.debug("Stopped packet sniffing.")
 
     def reset_sniffing(self, sender_devices):
         self.stop_sniffing()  # Stop current sniffing

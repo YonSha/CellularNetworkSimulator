@@ -16,8 +16,9 @@ co.move_eq(id=2, steps=4)
 dev1 = co.return_device_by_id(1)
 dev2 = co.return_device_by_id(2)
 
-sender = co.init_network()
-sender.run(sender_devices=[dev1], target_devices=[dev2], target_port=80, payload="Hello TCP", protocol='TCP')
+# sends packets between devices
+co.init_network().run(sender_devices=[dev1], target_devices=[dev2], target_port=80, payload="Hello TCP", protocol='TCP')
+
 
 co.create_plot()
 co.show_plot()

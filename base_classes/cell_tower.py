@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class BaseStation:
+class CellTower:
     def __init__(self, id, position,provider_name, signal_strength, signal_type,supported_signals, status):
         self.id = id  # Base station ID
         self.position = position  # Position as (x, y) tuple

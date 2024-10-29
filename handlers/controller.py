@@ -1,7 +1,7 @@
 import logging
 import warnings
 from matplotlib import pyplot as plt
-from handlers.base_stations_handler import BaseStationsHandler
+from handlers.cell_tower_handler import CellTowerHandler
 from handlers.provider_handler import ProviderHandler
 from handlers.user_equipment_handler import UserEquipmentHandler
 from handlers.network_handler import NetworkHandler
@@ -13,7 +13,7 @@ class Controller:
     def __init__(self):
         self.eq_list = []
         self.equipment = None
-        self.stations = None
+        self.cpes = None
         self.ip_address = 0
         self.plot_data = []
 
@@ -37,25 +37,24 @@ class Controller:
         signal_name, signal_strength = device.get_random_signal()
         self.ip_address = generate_ip_addresses(self.ip_address)
         sim_code = generate_sim_code()
-        bs_data = self.stations.return_bs_data
+        bs_data = self.cpes.return_bs_data
         self.eq_list.append(
             UserEquipmentHandler(id, position=position, eq_class=device.device_name, status=status, bs_data=bs_data,
                                  sim_code=sim_code, signal_strength=signal_strength, signal_name=signal_name,
                                  ip_address=f"192.168.1.{self.ip_address}", network_online=network_online))
         logging.info(f"Added device id:{id}")
 
-    # TODO: Add support for more than one signal types for devices, and let devices see each other
-    def init_stations(self, num_bs=1, provider=None, id=None, position=None, status=None) -> None:
+    def init_cell_towers(self, num_bs=1, provider=None, id=None, position=None, status=None) -> None:
         signal_type, signal_strength = provider.get_random_signal_strength()
 
         logging.info(f"initiate base stations")
-        self.stations = BaseStationsHandler(num_bs=num_bs, provider_name=provider.provider_name,
-                                            signal_strength=signal_strength,
-                                            signal_type=signal_type, supported_signals=provider.signals, id=id,
-                                            position=position, status=status)
+        self.cpes = CellTowerHandler(num_bs=num_bs, provider_name=provider.provider_name,
+                                     signal_strength=signal_strength,
+                                     signal_type=signal_type, supported_signals=provider.signals, id=id,
+                                     position=position, status=status)
 
-    def add_station(self, provider=None, status="online"):
-        self.stations.add_base_station(provider, status)
+    def add_cell_tower(self, provider=None, status="online"):
+        self.cpes.add_cell_tower(provider, status)
 
     def move_eq(self, id, steps=5) -> None:
         for eq in self.eq_list:
@@ -64,7 +63,7 @@ class Controller:
                 return eq.move(steps)
 
     def check_device_proximity(self):
-        stations, positions = self.stations.return_bs_data
+        stations, positions = self.cpes.return_bs_data
         for i in stations:
             print(i)
 
@@ -87,7 +86,7 @@ class Controller:
 
             # Plot base stations
             if i == 0:
-                ax.scatter(*zip(*self.stations.bs_positions), marker='^', color='red', label='Base Stations')
+                ax.scatter(*zip(*self.cpes.bs_positions), marker='^', color='red', label='Base Stations')
 
             # Plot user equipment position with distinct color
             ax.scatter(self.equipment.position[0], self.equipment.position[1],
@@ -102,11 +101,11 @@ class Controller:
                 'Trajectory': [(pos[0], pos[1], bs_id) for pos, bs_id in self.equipment.trajectory]
             })
             # bs data
-            for bs in self.stations.stations_with_positions:
+            for bs in self.cpes.stations_with_positions:
                 ax.text(
                     bs.position[0],
                     bs.position[1] + 2,
-                    f'BS{bs.base_station.id}({bs.base_station.provider_name})',
+                    f'BS{bs.cell_tower.id}({bs.cell_tower.provider_name})',
                     fontsize=6.5,
                     ha='center',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.3')
@@ -114,7 +113,7 @@ class Controller:
                 ax.text(
                     bs.position[0],
                     bs.position[1] - 3,
-                    f'{bs.base_station.supported_signals}',
+                    f'{bs.cell_tower.supported_signals}',
                     fontsize=6.5,
                     ha='center',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.3')
@@ -148,11 +147,11 @@ class Controller:
         ax.set_xlabel('X Position')
         ax.set_ylabel('Y Position')
         ax.grid()
-        logging.info("Created PLOT for devices map")
+        logging.info("Created PLOT for UES/CPES map")
 
     def show_plot(self) -> None:
 
-        logging.info("Show device map")
+        logging.info("Show result map")
         plt.rcParams['font.family'] = 'Arial'
         # Save the map created as a PDF file
         plt.savefig(self.plot_path, dpi=1000, bbox_inches='tight', pad_inches=0.1)

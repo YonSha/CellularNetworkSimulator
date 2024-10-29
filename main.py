@@ -4,13 +4,21 @@ from configuration.devices_enum import DeviceEnum
 from configuration.providers_enum import ProviderEnum
 from handlers.controller import Controller
 
+# TODO:
+#  Add support for more than one signal types for devices
+#  let devices see each other,
+#  if device not connected to a cell tower, no packet sent
+#  add provider approved sims
+#  add provider support for private network (will require to add device signal strength support)
+#  Airplan mode
+#  fix overlapping texts in result map
 logging.info("Simulation started")
 co = Controller()
 
-co.init_stations(num_bs=3, provider=ProviderEnum.customer_one)
+co.init_cell_towers(num_bs=3, provider=ProviderEnum.customer_one)
 co.add_equipment(id=1, position=(50, 50), device=DeviceEnum.GALAXY_S22, status="online",network_online=True)
 co.move_eq(id=1, steps=3)
-co.add_station(ProviderEnum.customer_two)
+co.add_cell_tower(ProviderEnum.customer_two)
 co.add_equipment(id=2, position=(50, 50), device=DeviceEnum.IPAD_PRO, status="online", network_online=True)
 co.move_eq(id=2, steps=4)
 

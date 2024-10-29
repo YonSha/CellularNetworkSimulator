@@ -1,15 +1,16 @@
 import logging
 
 from configuration.devices_enum import DeviceEnum
+from configuration.providers_enum import ProviderEnum
 from handlers.controller import Controller
 
 logging.info("Simulation started")
 co = Controller()
 
-co.init_stations(num_bs=3, bs_power=35)
-co.add_equipment(id=1, position=(50, 50), device=DeviceEnum.GALAXY_S21, status="online",network_online=True)
+co.init_stations(num_bs=3, provider=ProviderEnum.customer_one)
+co.add_equipment(id=1, position=(50, 50), device=DeviceEnum.GALAXY_S22, status="online",network_online=True)
 co.move_eq(id=1, steps=3)
-co.add_station(60)
+co.add_station(ProviderEnum.customer_two)
 co.add_equipment(id=2, position=(50, 50), device=DeviceEnum.IPAD_PRO, status="online", network_online=True)
 co.move_eq(id=2, steps=4)
 

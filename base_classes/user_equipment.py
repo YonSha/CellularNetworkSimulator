@@ -2,7 +2,7 @@ import numpy as np
 
 
 class UserEquipment:
-    def __init__(self, id, position, eq_class, status, sim_code, signal_power, ip_address, network_online):
+    def __init__(self, id, position, eq_class, status, sim_code, signal_power,signal_name, ip_address, network_online):
         self.id = id  # User equipment ID
         self.position = position  # Position as (x, y) tuple
         self.connected_bs = None  # Connected base station
@@ -14,8 +14,9 @@ class UserEquipment:
         self.signal_power = signal_power # singal strength of the device
         self.ip_address = ip_address # ip of the device
         self.network_online = network_online  # Simulating online status (network) - if False no network connection will occur
+        self.signal_name = signal_name
 
-    def signal_strength(self, user_position) -> int:
+    def signal_strength_check(self, user_position) -> int:
         my_array = np.array(user_position)
         distance = np.linalg.norm(self.position - my_array)
         return self.signal_power if distance == 0 else self.signal_power - 10 * np.log10(distance)

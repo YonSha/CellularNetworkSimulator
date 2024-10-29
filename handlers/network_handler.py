@@ -29,7 +29,7 @@ class NetworkHandler:
         send(packet, verbose=0)
         self.packet_count += 1
         logging.debug(
-            f"Sent {protocol} packet from {sender_device.sim_code} to {target_device.sim_code} on port {target_port}. Total packets sent: {self.packet_count}.")
+            f"Sent {protocol} packet from SIM:{sender_device.sim_code} to SIM:{target_device.sim_code} on port {target_port}. Total packets sent: {self.packet_count}.")
 
     def sniff_packets(self, sender_devices):
         def packet_handler(packet):

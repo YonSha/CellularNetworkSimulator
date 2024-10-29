@@ -5,8 +5,9 @@ from base_classes.user_equipment import UserEquipment
 class UserEquipmentHandler(UserEquipment):
 
     def __init__(self, id=None, position=None, eq_class=None, status=None, bs_data=None, sim_code=None,
-                 signal_power=None, ip_address=None, network_online=None):
-        super().__init__(id, position, eq_class, status, sim_code, signal_power, ip_address, network_online)
+                 signal_strength=None, signal_name=None, ip_address=None, network_online=None):
+        super().__init__(id, position, eq_class, status, sim_code, signal_strength, signal_name, ip_address,
+                         network_online)
         self.trajectory = []
         self.base_stations, self.bs_positions = bs_data
         self.eq_list = []
@@ -31,15 +32,17 @@ class UserEquipmentHandler(UserEquipment):
         self.status = "offline"
 
     def connect_to_bs(self, base_stations) -> None:
-        base_stations = [bs for bs in base_stations if bs.status != "offline"]
-        self.connected_bs = max(base_stations, key=lambda bs: bs.signal_strength(self.position)).id
+        # if cell tower not support the device current signal type or tower is offline, dont connect.
+        base_stations = [bs for bs in base_stations if
+                         bs.status != "offline" or self.signal_name not in bs.supported_signals]
+        self.connected_bs = max(base_stations, key=lambda bs: bs.signal_strength_check(self.position)).id
 
-    # returns the closest device or station
+    # returns the closest device or station ( not operational )
     def connect(self, base_stations, eqs) -> None:
         base_stations = [bs for bs in base_stations if bs.status != "offline"]
         eqs = [eq for eq in eqs if eq.status != "offline"]
-        connected_bs = max(base_stations, key=lambda bs: bs.signal_strength(self.position)).id
-        connected_eq = max(eqs, key=lambda eq: eq.signal_strength(self.position)).id
+        connected_bs = max(base_stations, key=lambda bs: bs.signal_strength_check(self.position)).id
+        connected_eq = max(eqs, key=lambda eq: eq.signal_strength_check(self.position)).id
         if connected_eq > connected_bs:
             return connected_eq
         return connected_bs

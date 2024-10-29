@@ -2,6 +2,7 @@ import logging
 import warnings
 from matplotlib import pyplot as plt
 from handlers.base_stations_handler import BaseStationsHandler
+from handlers.provider_handler import ProviderHandler
 from handlers.user_equipment_handler import UserEquipmentHandler
 from handlers.network_handler import NetworkHandler
 from utils.tools import generate_sim_code, generate_ip_addresses
@@ -19,6 +20,10 @@ class Controller:
         self.plot_path = 'generated_files\plot.pdf'
         self.data_path = 'generated_files\plot_data.csv'
 
+    # create new provider
+    def create_new_provider(self, name, signals, status):
+        return ProviderHandler(name, signals, status)
+
     def init_network(self):
         return NetworkHandler()
 
@@ -29,21 +34,28 @@ class Controller:
                 return eq
 
     def add_equipment(self, id, position, device, status, network_online) -> None:
+        signal_name, signal_strength = device.get_random_signal()
         self.ip_address = generate_ip_addresses(self.ip_address)
         sim_code = generate_sim_code()
         bs_data = self.stations.return_bs_data
         self.eq_list.append(
             UserEquipmentHandler(id, position=position, eq_class=device.device_name, status=status, bs_data=bs_data,
-                                 sim_code=sim_code, signal_power=device.signal_strength,
+                                 sim_code=sim_code, signal_strength=signal_strength, signal_name=signal_name,
                                  ip_address=f"192.168.1.{self.ip_address}", network_online=network_online))
         logging.info(f"Added device id:{id}")
 
-    def init_stations(self, num_bs=1, bs_power=30, id=None, position=None, power=None, status=None) -> None:
-        logging.info(f"initiate base stations")
-        self.stations = BaseStationsHandler(num_bs, bs_power, id, position, power, status)
+    # TODO: Add support for more than one signal types for devices, and let devices see each other
+    def init_stations(self, num_bs=1, provider=None, id=None, position=None, status=None) -> None:
+        signal_type, signal_strength = provider.get_random_signal_strength()
 
-    def add_station(self, bs_power=None, status="online"):
-        self.stations.add_base_station(bs_power, status)
+        logging.info(f"initiate base stations")
+        self.stations = BaseStationsHandler(num_bs=num_bs, provider_name=provider.provider_name,
+                                            signal_strength=signal_strength,
+                                            signal_type=signal_type, supported_signals=provider.signals, id=id,
+                                            position=position, status=status)
+
+    def add_station(self, provider=None, status="online"):
+        self.stations.add_base_station(provider, status)
 
     def move_eq(self, id, steps=5) -> None:
         for eq in self.eq_list:
@@ -89,12 +101,20 @@ class Controller:
                 'Sim Code': self.equipment.sim_code,
                 'Trajectory': [(pos[0], pos[1], bs_id) for pos, bs_id in self.equipment.trajectory]
             })
-
+            # bs data
             for bs in self.stations.stations_with_positions:
                 ax.text(
                     bs.position[0],
                     bs.position[1] + 2,
-                    f'BS{bs.base_station.id}',
+                    f'BS{bs.base_station.id}({bs.base_station.provider_name})',
+                    fontsize=6.5,
+                    ha='center',
+                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.3')
+                )
+                ax.text(
+                    bs.position[0],
+                    bs.position[1] - 3,
+                    f'{bs.base_station.supported_signals}',
                     fontsize=6.5,
                     ha='center',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.3')
@@ -115,7 +135,7 @@ class Controller:
                 ax.text(
                     pos[0],
                     pos[1] - 3,
-                    f'Sim:{self.equipment.sim_code}',
+                    f'Sim:{self.equipment.sim_code}({self.equipment.signal_name})',
                     fontsize=6.5,
                     ha='center',
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.3')
@@ -129,7 +149,6 @@ class Controller:
         ax.set_ylabel('Y Position')
         ax.grid()
         logging.info("Created PLOT for devices map")
-
 
     def show_plot(self) -> None:
 

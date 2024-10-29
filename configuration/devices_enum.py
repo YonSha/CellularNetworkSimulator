@@ -1,25 +1,32 @@
+import random
 from enum import Enum
 
 
 class DeviceEnum(Enum):
-    IPHONE_12 = (60, 'Apple iPhone 12')
-    IPHONE_13 = (55, 'Apple iPhone 13')
-    IPHONE_14 = (50, 'Apple iPhone 14')
-    IPHONE_15 = (45, 'Apple iPhone 15')
+    IPHONE_13 = (5, 10, 15, 25, 'Apple iPhone 13')
+    IPHONE_14 = (5, 10, 15, 25, 'Apple iPhone 14')
+    IPHONE_15 = (5, 10, 15, 25, 'Apple iPhone 15')
 
-    GALAXY_S21 = (50, 'Samsung Galaxy S21')
-    GALAXY_S22 = (48, 'Samsung Galaxy S22')
-    GALAXY_S23 = (46, 'Samsung Galaxy S23')
-    GALAXY_S24 = (44, 'Samsung Galaxy S24')
+    GALAXY_S22 = (5, 10, 15, 25, 'Samsung Galaxy S22')
+    GALAXY_S23 = (5, 10, 15, 25, 'Samsung Galaxy S23')
+    GALAXY_S24 = (5, 10, 15, 25, 'Samsung Galaxy S24')
 
-    PIXEL_6 = (45, 'Google Pixel 6')
-    ONEPLUS_9 = (40, 'OnePlus 9')
+    PIXEL_6 = (5, 10, 15, 25, 'Google Pixel 6')
+    ONEPLUS_9 = (5, 10, 15, 25, 'OnePlus 9')
 
-    IPAD = (35, 'Apple iPad')
-    IPAD_PRO = (38, 'Apple iPad Pro')
-    GALAXY_TAB = (30, 'Samsung Galaxy Tab')
-    SURFACE_PRO = (32, 'Microsoft Surface Pro')
+    IPAD = (5, 10, 15, 25, 'Apple iPad')
+    IPAD_PRO = (5, 10, 15, 25, 'Apple iPad Pro')
+    GALAXY_TAB = (5, 10, 15, 25, 'Samsung Galaxy Tab')
 
-    def __init__(self, signal_strength, device_name):
-        self.signal_strength = signal_strength
+    def __init__(self, signal_3g, signal_4g, signal_4glte, signal_5g, device_name):
+        self.signals = {
+            "3G": signal_3g,
+            "4G": signal_4g,
+            "4G LTE": signal_4glte,
+            "5G": signal_5g
+        }
         self.device_name = device_name
+
+    def get_random_signal(self):
+        signal_name = random.choice(list(self.signals.keys()))
+        return signal_name, self.signals[signal_name]

@@ -8,7 +8,9 @@ from handlers.controller import Controller
 #  Add support for more than one signal types for devices
 #  let devices see each other,
 #  if device not connected to a cell tower, no packet sent
-#  add provider approved sims
+#  change provider into a class
+#  add provider approved sims ( {sim num}:{active}/disabled
+#  add provider provide sim generator
 #  add provider support for private network (will require to add device signal strength support)
 #  Airplan mode
 #  fix overlapping texts in result map
